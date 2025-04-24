@@ -19,11 +19,55 @@ const CommentList = ({ postId, currentUser }) => {
     try {
       setLoading(true);
       const data = await commentService.getComments(postId);
-      setComments(data);
+      console.log('Received comments data:', data);
+      
+      if (!Array.isArray(data)) {
+        console.error('Expected array of comments but received:', typeof data);
+        throw new Error('Invalid response format');
+      }
+
+      // Transform the comments data to handle MongoDB ObjectId
+      const transformedComments = data.map(comment => {
+        console.log('Processing comment:', comment); // Debug log
+        
+        // Handle different possible structures of the comment data
+        let commentId = '';
+        let commentTimestamp = '';
+        
+        if (comment.id && typeof comment.id === 'object') {
+          // If id is an object with timestamp property
+          if (comment.id.timestamp) {
+            commentId = comment.id.timestamp.toString();
+            commentTimestamp = new Date(comment.id.date).toISOString();
+          } else {
+            // If id is an object but doesn't have timestamp
+            commentId = comment.id.toString();
+            commentTimestamp = new Date().toISOString(); // Use current date as fallback
+          }
+        } else {
+          // If id is a string or number
+          commentId = comment.id ? comment.id.toString() : '';
+          commentTimestamp = comment.timestamp || new Date().toISOString();
+        }
+        
+        return {
+          _id: comment.id || comment._id, // Use either id or _id
+          id: commentId,
+          content: comment.content,
+          postId: comment.postId,
+          userId: comment.userId,
+          timestamp: commentTimestamp,
+          username: currentUser.name,
+          userAvatar: currentUser.avatar
+        };
+      });
+
+      console.log('Transformed comments:', transformedComments); // Debug log
+      setComments(transformedComments);
       setError(null);
     } catch (err) {
-      setError("Failed to load comments. Please try again later.");
-      console.error("Error fetching comments:", err);
+      console.error("Error details:", err);
+      setError(err.message || "Failed to load comments. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -32,16 +76,48 @@ const CommentList = ({ postId, currentUser }) => {
   const handleAddComment = async (text) => {
     try {
       const newComment = {
-        postId,
-        userId: currentUser.id,
-        username: currentUser.name,
-        userAvatar: currentUser.avatar,
-        text,
-        timestamp: new Date().toISOString()
+        content: text,
+        postId: postId,
+        userId: currentUser.id
       };
 
       const savedComment = await commentService.addComment(newComment);
-      setComments(prevComments => [savedComment, ...prevComments]);
+      
+      console.log('Saved comment structure:', savedComment); // Debug log
+      
+      // Handle different possible structures of the saved comment data
+      let commentId = '';
+      let commentTimestamp = '';
+      
+      if (savedComment.id && typeof savedComment.id === 'object') {
+        // If id is an object with timestamp property
+        if (savedComment.id.timestamp) {
+          commentId = savedComment.id.timestamp.toString();
+          commentTimestamp = new Date(savedComment.id.date).toISOString();
+        } else {
+          // If id is an object but doesn't have timestamp
+          commentId = savedComment.id.toString();
+          commentTimestamp = new Date().toISOString(); // Use current date as fallback
+        }
+      } else {
+        // If id is a string or number
+        commentId = savedComment.id ? savedComment.id.toString() : '';
+        commentTimestamp = savedComment.timestamp || new Date().toISOString();
+      }
+      
+      // Transform the saved comment to match our frontend format
+      const transformedComment = {
+        _id: savedComment.id || savedComment._id, // Use either id or _id
+        id: commentId,
+        content: savedComment.content,
+        postId: savedComment.postId,
+        userId: savedComment.userId,
+        timestamp: commentTimestamp,
+        username: currentUser.name,
+        userAvatar: currentUser.avatar
+      };
+      
+      setComments(prevComments => [transformedComment, ...prevComments]);
       
       // Add notification for comment
       addNotification({
@@ -51,7 +127,7 @@ const CommentList = ({ postId, currentUser }) => {
         userId: currentUser.id,
         username: currentUser.name,
         timestamp: new Date().toISOString(),
-        content: `${currentUser.name} commented on a post: "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"`,
+        content: `You commented on a post: "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"`,
         read: false
       });
       
@@ -83,7 +159,6 @@ const CommentList = ({ postId, currentUser }) => {
   return (
     <div className="comments-section">
       <h3 className="comments-heading">Comments</h3>
-      
       <CommentForm onSubmit={handleAddComment} currentUser={currentUser} />
       
       <div className="comments-list">

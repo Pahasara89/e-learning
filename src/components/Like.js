@@ -4,7 +4,7 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import "../css/Like.css";
 
-const Like = ({ postId, initialLikes = [], currentUser }) => {
+const Like = ({ postId, initialLikes = [], currentUser, postOwner }) => {
   const [likes, setLikes] = useState(initialLikes);
   const [isLiked, setIsLiked] = useState(
     initialLikes.some(like => like.userId === currentUser?.id)
@@ -30,7 +30,7 @@ const Like = ({ postId, initialLikes = [], currentUser }) => {
       
       setLikes(prevLikes => [...prevLikes, newLike]);
       
-      // Create notification for the like
+      // Create notification for the like with post owner's name
       addNotification({
         id: Date.now(),
         type: 'like',
@@ -38,7 +38,7 @@ const Like = ({ postId, initialLikes = [], currentUser }) => {
         userId: currentUser.id,
         username: currentUser.name,
         timestamp: new Date().toISOString(),
-        content: `${currentUser.name} you like a post`,
+        content: `You liked ${postOwner ? postOwner.name + "'s" : "a"} post`,
         read: false 
       });
     }

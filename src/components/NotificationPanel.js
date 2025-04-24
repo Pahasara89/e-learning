@@ -2,6 +2,7 @@ import React from "react";
 import NotificationItem from "./Notification";
 import { useNotifications } from "../context/NotificationContext";
 import "../css/NotificationPanel.css";
+import { NotificationsNoneOutlined } from "@mui/icons-material";
 
 const NotificationPanel = ({ isOpen, onClose }) => {
   const { 
@@ -27,7 +28,7 @@ const NotificationPanel = ({ isOpen, onClose }) => {
             </button>
           )}
           <button className="notification-close" onClick={onClose}>
-            <i className="fas fa-times"></i>
+            <NotificationsNoneOutlined className="fas fa-times"/>
           </button>
         </div>
       </div>

@@ -3,6 +3,7 @@ import Like from "./Like";
 import CommentList from "./CommentList";
 import Share from "./Share";
 import "../css/Post.css";
+import { MapsUgcOutlined } from "@mui/icons-material";
 
 const Post = ({ post, currentUser }) => {
   const [showComments, setShowComments] = useState(false);
@@ -65,11 +66,12 @@ const Post = ({ post, currentUser }) => {
         <Like 
           postId={post.id} 
           initialLikes={post.likes} 
-          currentUser={currentUser} 
+          currentUser={currentUser}
+          postOwner={post.user} 
         />
         
         <button className="post-action-button" onClick={toggleComments}>
-          <i className="far fa-comment"></i>
+          <MapsUgcOutlined className="far fa-comment"/>
           <span>Comment</span>
         </button>
         

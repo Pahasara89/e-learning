@@ -1,20 +1,27 @@
 import React, { useState } from "react";
 import { useNotifications } from "../context/NotificationContext";
 import "../css/Share.css";
+import { AddLinkOutlined, EmailOutlined, ForwardToInboxRounded, SendOutlined, ShareOutlined, TimelineOutlined } from "@mui/icons-material";
+import Toast from "./Toast";
 
 const Share = ({ post, currentUser }) => {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [toast, setToast] = useState(null);
   const { addNotification } = useNotifications();
 
   const shareOptions = [
-    { id: 'timeline', name: 'Share to Timeline', icon: 'fas fa-stream' },
-    { id: 'message', name: 'Send as Message', icon: 'fas fa-paper-plane' },
-    { id: 'copy', name: 'Copy Link', icon: 'fas fa-link' },
-    { id: 'email', name: 'Share via Email', icon: 'fas fa-envelope' }
+    { id: 'timeline', name: 'Share to Timeline', icon: <TimelineOutlined /> },
+    { id: 'message', name: 'Send as Message', icon: <ForwardToInboxRounded/> },
+    { id: 'copy', name: 'Copy Link', icon: <AddLinkOutlined/> },
+    { id: 'email', name: 'Share via Email', icon: <EmailOutlined/> }
   ];
 
   const toggleShareModal = () => {
     setIsShareModalOpen(!isShareModalOpen);
+  };
+
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type });
   };
 
   const handleShare = (option) => {
@@ -29,7 +36,7 @@ const Share = ({ post, currentUser }) => {
       userId: currentUser.id,
       username: currentUser.name,
       timestamp: new Date().toISOString(),
-      content: `${currentUser.name} shared your post via ${option.name}`,
+      content: `You shared your post via ${option.name}`,
       read: false
     });
     
@@ -37,14 +44,15 @@ const Share = ({ post, currentUser }) => {
     switch (option.id) {
       case 'copy':
         // In a real app, you'd copy a URL to clipboard
-        alert("Link copied to clipboard!");
+        showToast("Link copied to clipboard!", "success");
         break;
       case 'email':
         window.location.href = `mailto:?subject=Check out this post&body=I thought you might be interested in this: ${window.location.href}`;
+        showToast("Email client opened!", "info");
         break;
       default:
         // For timeline and message, just show confirmation
-        alert(`Post shared via ${option.name}!`);
+        showToast(`Post shared via ${option.name}!`, "success");
     }
     
     setIsShareModalOpen(false);
@@ -53,7 +61,7 @@ const Share = ({ post, currentUser }) => {
   return (
     <div className="share-container">
       <button className="share-button" onClick={toggleShareModal}>
-        <i className="share-icon fas fa-share"></i>
+        <ShareOutlined className="share-icon"/>
         <span>Share</span>
       </button>
       
@@ -63,7 +71,7 @@ const Share = ({ post, currentUser }) => {
             <div className="share-modal-header">
               <h3>Share this post</h3>
               <button className="share-modal-close" onClick={toggleShareModal}>
-                <i className="fas fa-times"></i>
+                <SendOutlined className="fas fa-times"/>
               </button>
             </div>
             
@@ -74,13 +82,21 @@ const Share = ({ post, currentUser }) => {
                   className="share-option" 
                   onClick={() => handleShare(option)}
                 >
-                  <i className={`share-option-icon ${option.icon}`}></i>
+                  <span className="share-option-icon">{option.icon}</span>
                   <span>{option.name}</span>
                 </button>
               ))}
             </div>
           </div>
         </div>
+      )}
+
+      {toast && (
+        <Toast 
+          message={toast.message} 
+          type={toast.type} 
+          onClose={() => setToast(null)} 
+        />
       )}
     </div>
   );

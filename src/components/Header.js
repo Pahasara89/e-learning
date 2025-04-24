@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { useNotifications } from "../context/NotificationContext";
 import NotificationPanel from "./NotificationPanel";
 import "../css/Header.css";
+import { NotificationsNoneOutlined } from "@mui/icons-material";
 
 const Header = ({ currentUser }) => {
   const [isNotificationPanelOpen, setIsNotificationPanelOpen] = useState(false);
@@ -54,7 +55,7 @@ const Header = ({ currentUser }) => {
             className="notification-button" 
             onClick={toggleNotificationPanel}
           >
-            <i className="fas fa-bell"></i>
+            <NotificationsNoneOutlined className="fas fa-bell"/>
             {unreadCount > 0 && (
               <span className="notification-badge">{unreadCount}</span>
             )}

@@ -58,14 +58,14 @@
     padding: 2px 8px;
     margin-right: 8px;
     cursor: pointer;
-    color: #65676b;
+    color: #4d90fe;
   }
   
   .comment-actions button:hover {
     text-decoration: underline;
   }
   
-  .comment-edit {
+  .comment-edit { 
     margin-bottom: 4px;
   }
   
@@ -97,12 +97,12 @@
   }
   
   .btn-save {
-    background-color: #1877f2;
-    color: white;
+    /* background-color: #1877f2; */
+    color: #1877f2;
   }
   
   .btn-cancel {
     background-color: #e4e6eb;
-    color: #050505;
+    color: red;
   }
   

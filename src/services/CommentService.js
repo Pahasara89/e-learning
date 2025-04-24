@@ -6,9 +6,15 @@ export const commentService = {
   getComments: async (postId) => {
     try {
       const response = await axios.get(`${API_URL}/Comments?postId=${postId}`);
+      console.log('API Response:', response); // Debug log
+      
+      if (!response.data) {
+        throw new Error('No data received from server');
+      }
+      
       return response.data;
     } catch (error) {
-      console.error("Error fetching comments:", error);
+      console.error("Error fetching comments:", error.response || error);
       throw error;
     }
   },
@@ -25,7 +31,7 @@ export const commentService = {
   
   updateComment: async (id, commentData) => {
     try {
-      const response = await axios.put(`${API_URL}/Comments/UpdateComment${id}`, commentData);
+      const response = await axios.put(`${API_URL}/Comments/UpdateComment/${id}`, commentData);
       return response.data;
     } catch (error) {
       console.error("Error updating comment:", error);

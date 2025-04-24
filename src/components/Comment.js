@@ -4,7 +4,7 @@ import '../css/Comment.css'
 
 const Comment = ({ comment, onCommentUpdate, onCommentDelete, currentUser }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [editText, setEditText] = useState(comment.text);
+  const [editText, setEditText] = useState(comment.content);
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -12,19 +12,19 @@ const Comment = ({ comment, onCommentUpdate, onCommentDelete, currentUser }) => 
 
   const handleCancelEdit = () => {
     setIsEditing(false);
-    setEditText(comment.text);
+    setEditText(comment.content);
   };
 
   const handleSaveEdit = async () => {
     try {
-      await commentService.updateComment(comment.id, { 
+      await commentService.updateComment(comment._id, { 
         ...comment, 
-        text: editText 
+        content: editText 
       });
       
       onCommentUpdate({
         ...comment,
-        text: editText
+        content: editText
       });
       
       setIsEditing(false);
@@ -35,8 +35,8 @@ const Comment = ({ comment, onCommentUpdate, onCommentDelete, currentUser }) => 
 
   const handleDelete = async () => {
     try {
-      await commentService.deleteComment(comment.id);
-      onCommentDelete(comment.id);
+      await commentService.deleteComment(comment._id);
+      onCommentDelete(comment._id);
     } catch (error) {
       console.error("Failed to delete comment:", error);
     }
@@ -69,7 +69,7 @@ const Comment = ({ comment, onCommentUpdate, onCommentDelete, currentUser }) => 
             </div>
           </div>
         ) : (
-          <div className="comment-text">{comment.text}</div>
+          <div className="comment-text">{comment.content}</div>
         )}
         
         {isAuthor && !isEditing && (
