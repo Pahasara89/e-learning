@@ -75,25 +75,7 @@ const Post: React.FC<PostProps> = ({ post, currentUser }) => {
           </div>
         )}
       </div>
-      
-      {/* <div className="post-stats">
-        <span className="post-likes">
-          {post.likes && post.likes.length > 0 && (
-            <>
-              <i className="fas fa-heart"></i> {post.likes.length}
-            </>
-          )}
-        </span>
-        
-        <span className="post-comments-count" onClick={toggleComments}>
-          {post.commentCount || 0} comments
-        </span>
-        
-        <span className="post-shares-count">
-          {post.shares || 0} shares
-        </span>
-      </div> */}
-      
+            
       <div className="post-actions">
         <Like 
           postId={post.id} 

@@ -28,8 +28,8 @@ interface Post {
 const App: React.FC = () => {
   const [currentUser] = useState<User>({
     id: "user123",
-    name: "Alex Johnson",
-    avatar: "https://i.pravatar.cc/150?img=4",
+    name: "Kaushani Dewmini",
+    avatar: "https://img.freepik.com/free-photo/businesswoman-with-glasses-crossed-arms_1098-3347.jpg?t=st=1745591402~exp=1745595002~hmac=6a577604ed44c28dfc5e0f582a79826c2acd61574042de9d878892e704c777bc&w=1380",
     role: "Student"
   });
 

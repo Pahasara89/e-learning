@@ -17,7 +17,7 @@ export const commentService = {
   getComments: async (postId: string | number): Promise<Comment[]> => {
     try {
       const response = await axios.get<Comment[]>(`${API_URL}/Comments?postId=${postId}`);
-      console.log('API Response:', response); // Debug log
+      console.log('API Response:', response); 
       
       if (!response.data) {
         throw new Error('No data received from server');
