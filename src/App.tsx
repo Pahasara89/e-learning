@@ -5,17 +5,37 @@ import CreatePostForm from './components/CreatePostForm';
 import PostList from './components/PostList';
 import NotificationProvider from './context/NotificationContext';
 
-function App() {
-  const [currentUser] = useState({
+interface User {
+  id: string;
+  name: string;
+  avatar: string;
+  role: string;
+}
+
+interface Post {
+  id: number;
+  userId: string | number;
+  username?: string;
+  userAvatar?: string;
+  content: string;
+  image?: string | null;
+  timestamp: string;
+  likes: any[];
+  commentCount: number;
+  shares: number;
+}
+
+const App: React.FC = () => {
+  const [currentUser] = useState<User>({
     id: "user123",
-    name: "Kaushani Dewmini",
+    name: "Alex Johnson",
     avatar: "https://i.pravatar.cc/150?img=4",
     role: "Student"
   });
 
-  const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useState<Post[]>([]);
 
-  const handlePostCreated = (newPost) => {
+  const handlePostCreated = (newPost: Post): void => {
     setPosts(prevPosts => [newPost, ...prevPosts]);
   };
 
@@ -31,7 +51,6 @@ function App() {
               onPostCreated={handlePostCreated} 
             />
             <PostList 
-              posts={posts} 
               currentUser={currentUser} 
             />
           </div>
@@ -39,6 +58,6 @@ function App() {
       </div>
     </NotificationProvider>
   );
-}
+};
 
-export default App;
+export default App; 

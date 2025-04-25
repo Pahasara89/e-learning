@@ -1,39 +1,62 @@
-// src/components/Post/CreatePostForm.js
-import React, { useState } from "react";
+import React, { useState, ChangeEvent, FormEvent } from "react";
 import "../css/CreatePostForm.css";
 
-const CreatePostForm = ({ currentUser, onPostCreated }) => {
-  const [content, setContent] = useState("");
-  const [image, setImage] = useState(null);
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+interface User {
+  id: string | number;
+  name?: string;
+  avatar?: string;
+}
 
-  const handleFocus = () => {
+interface Post {
+  id: number;
+  userId: string | number;
+  username?: string;
+  userAvatar?: string;
+  content: string;
+  image: string | null;
+  timestamp: string;
+  likes: any[];
+  commentCount: number;
+  shares: number;
+}
+
+interface CreatePostFormProps {
+  currentUser: User | null;
+  onPostCreated: (post: Post) => void;
+}
+
+const CreatePostForm: React.FC<CreatePostFormProps> = ({ currentUser, onPostCreated }) => {
+  const [content, setContent] = useState<string>("");
+  const [image, setImage] = useState<string | null>(null);
+  const [isExpanded, setIsExpanded] = useState<boolean>(false);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+  const handleFocus = (): void => {
     setIsExpanded(true);
   };
 
-  const handleCancel = () => {
+  const handleCancel = (): void => {
     setIsExpanded(false);
     setContent("");
     setImage(null);
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
+  const handleImageChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = (e) => {
-        setImage(e.target.result);
+      reader.onload = (e: ProgressEvent<FileReader>): void => {
+        setImage(e.target?.result as string);
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleRemoveImage = () => {
+  const handleRemoveImage = (): void => {
     setImage(null);
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     
     if (!content.trim() && !image) return;
@@ -42,11 +65,11 @@ const CreatePostForm = ({ currentUser, onPostCreated }) => {
     
     try {
       // In a real app, this would be an API call
-      const newPost = {
+      const newPost: Post = {
         id: Date.now(),
-        userId: currentUser.id,
-        username: currentUser.name,
-        userAvatar: currentUser.avatar,
+        userId: currentUser?.id || '',
+        username: currentUser?.name,
+        userAvatar: currentUser?.avatar,
         content,
         image,
         timestamp: new Date().toISOString(),
@@ -86,7 +109,7 @@ const CreatePostForm = ({ currentUser, onPostCreated }) => {
               className="post-input"
               placeholder={`What's on your mind, ${currentUser?.name?.split(' ')[0] || 'there'}?`}
               value={content}
-              onChange={(e) => setContent(e.target.value)}
+              onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setContent(e.target.value)}
               onFocus={handleFocus}
               disabled={isSubmitting}
             />
@@ -158,4 +181,4 @@ const CreatePostForm = ({ currentUser, onPostCreated }) => {
   );
 };
 
-export default CreatePostForm;
+export default CreatePostForm; 

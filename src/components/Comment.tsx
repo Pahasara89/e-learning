@@ -2,20 +2,41 @@ import React, { useState } from "react";
 import { commentService } from "../services/CommentService";
 import '../css/Comment.css'
 
-const Comment = ({ comment, onCommentUpdate, onCommentDelete, currentUser }) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editText, setEditText] = useState(comment.content);
+interface User {
+  id: string | number;
+  username?: string;
+  avatar?: string;
+}
 
-  const handleEdit = () => {
+interface CommentProps {
+  comment: {
+    _id: string | number;
+    content: string;
+    userId: string | number;
+    postId: string | number;
+    username?: string;
+    userAvatar?: string;
+    timestamp: string | Date;
+  };
+  onCommentUpdate: (updatedComment: CommentProps['comment']) => void;
+  onCommentDelete: (commentId: string | number) => void;
+  currentUser: User | null;
+}
+
+const Comment: React.FC<CommentProps> = ({ comment, onCommentUpdate, onCommentDelete, currentUser }) => {
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [editText, setEditText] = useState<string>(comment.content);
+
+  const handleEdit = (): void => {
     setIsEditing(true);
   };
 
-  const handleCancelEdit = () => {
+  const handleCancelEdit = (): void => {
     setIsEditing(false);
     setEditText(comment.content);
   };
 
-  const handleSaveEdit = async () => {
+  const handleSaveEdit = async (): Promise<void> => {
     try {
       await commentService.updateComment(comment._id, { 
         ...comment, 
@@ -33,7 +54,7 @@ const Comment = ({ comment, onCommentUpdate, onCommentDelete, currentUser }) => 
     }
   };
 
-  const handleDelete = async () => {
+  const handleDelete = async (): Promise<void> => {
     try {
       await commentService.deleteComment(comment._id);
       onCommentDelete(comment._id);
@@ -47,12 +68,12 @@ const Comment = ({ comment, onCommentUpdate, onCommentDelete, currentUser }) => 
   return (
     <div className="comment">
       <div className="comment-avatar">
-        <img src={comment.userAvatar || "/default-avatar.png"} alt={comment.username} />
+        <img src={comment.userAvatar || "/default-avatar.png"} alt={comment.username || 'User'} />
       </div>
       
       <div className="comment-content">
         <div className="comment-header">
-          <span className="comment-author">{comment.username}</span>
+          <span className="comment-author">{comment.username || 'Anonymous'}</span>
           <span className="comment-time">{new Date(comment.timestamp).toLocaleString()}</span>
         </div>
         
@@ -60,7 +81,7 @@ const Comment = ({ comment, onCommentUpdate, onCommentDelete, currentUser }) => 
           <div className="comment-edit">
             <textarea
               value={editText}
-              onChange={(e) => setEditText(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setEditText(e.target.value)}
               className="comment-edit-textarea"
             />
             <div className="comment-edit-actions">
@@ -83,4 +104,4 @@ const Comment = ({ comment, onCommentUpdate, onCommentDelete, currentUser }) => 
   );
 };
 
-export default Comment;
+export default Comment; 

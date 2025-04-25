@@ -1,9 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, ReactNode } from 'react';
 import '../css/Toast.css';
 import { CheckCircleOutline, ErrorOutline, InfoOutlined } from '@mui/icons-material';
 
-const Toast = ({ message, type = 'info', duration = 3000, onClose }) => {
-  const [isVisible, setIsVisible] = useState(true);
+interface ToastProps {
+  message: string;
+  type?: 'success' | 'error' | 'info' | 'warning';
+  duration?: number;
+  onClose?: () => void;
+}
+
+const Toast: React.FC<ToastProps> = ({ 
+  message, 
+  type = 'info', 
+  duration = 3000, 
+  onClose 
+}) => {
+  const [isVisible, setIsVisible] = useState<boolean>(true);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -14,7 +26,7 @@ const Toast = ({ message, type = 'info', duration = 3000, onClose }) => {
     return () => clearTimeout(timer);
   }, [duration, onClose]);
 
-  const getIcon = () => {
+  const getIcon = (): ReactNode => {
     switch (type) {
       case 'success':
         return <CheckCircleOutline />;

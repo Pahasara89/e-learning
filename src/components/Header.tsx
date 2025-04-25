@@ -1,17 +1,26 @@
-// src/components/Layout/Header.js
 import React, { useState } from "react";
 import { useNotifications } from "../context/NotificationContext";
 import NotificationPanel from "./NotificationPanel";
 import "../css/Header.css";
 import { NotificationsNoneOutlined } from "@mui/icons-material";
 
-const Header = ({ currentUser }) => {
-  const [isNotificationPanelOpen, setIsNotificationPanelOpen] = useState(false);
+interface User {
+  id: string | number;
+  name?: string;
+  avatar?: string;
+}
+
+interface HeaderProps {
+  currentUser: User | null;
+}
+
+const Header: React.FC<HeaderProps> = ({ currentUser }) => {
+  const [isNotificationPanelOpen, setIsNotificationPanelOpen] = useState<boolean>(false);
   const { notifications } = useNotifications();
-  
+
   const unreadCount = notifications.filter(notification => !notification.read).length;
 
-  const toggleNotificationPanel = () => {
+  const toggleNotificationPanel = (): void => {
     setIsNotificationPanelOpen(!isNotificationPanelOpen);
   };
 
@@ -19,61 +28,44 @@ const Header = ({ currentUser }) => {
     <header className="header">
       <div className="header-left">
         <div className="logo">
-          <h1>EduSocial</h1>
-        </div>
-        
-        <div className="search-bar">
-          <i className="fas fa-search search-icon"></i>
-          <input type="text" placeholder="Search..." />
+          <h1>Skill-explore</h1>
         </div>
       </div>
-      
+
       <nav className="main-nav">
         <ul>
-          <li className="nav-item active">
-            <i className="fas fa-home"></i>
-            <span>Home</span>
-          </li>
-          <li className="nav-item">
-            <i className="fas fa-book"></i>
-            <span>Courses</span>
-          </li>
           <li className="nav-item">
             <i className="fas fa-users"></i>
-            <span>Groups</span>
-          </li>
-          <li className="nav-item">
-            <i className="fas fa-graduation-cap"></i>
-            <span>Learn</span>
+            <span>Comment Section</span>
           </li>
         </ul>
       </nav>
-      
+
       <div className="header-right">
         <div className="notification-container">
-          <button 
-            className="notification-button" 
+          <button
+            className="notification-button"
             onClick={toggleNotificationPanel}
           >
-            <NotificationsNoneOutlined className="fas fa-bell"/>
+            <NotificationsNoneOutlined className="fas fa-bell" />
             {unreadCount > 0 && (
               <span className="notification-badge">{unreadCount}</span>
             )}
           </button>
-          
-          <NotificationPanel 
-            isOpen={isNotificationPanelOpen} 
-            onClose={() => setIsNotificationPanelOpen(false)} 
+
+          <NotificationPanel
+            isOpen={isNotificationPanelOpen}
+            onClose={() => setIsNotificationPanelOpen(false)}
           />
         </div>
-        
+
         <div className="user-menu">
           <div className="user-avatar">
-            <img src={currentUser?.avatar || "/default-avatar.png"} alt={currentUser?.name} />
+            <img src={currentUser?.avatar || "/default-avatar.png"} alt={currentUser?.name || 'User'} />
           </div>
           <span className="user-name">{currentUser?.name || "Guest"}</span>
           <i className="fas fa-caret-down"></i>
-          
+
           <div className="user-dropdown">
             <ul>
               <li>
@@ -100,4 +92,4 @@ const Header = ({ currentUser }) => {
   );
 };
 
-export default Header;
+export default Header; 

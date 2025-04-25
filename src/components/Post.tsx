@@ -5,10 +5,42 @@ import Share from "./Share";
 import "../css/Post.css";
 import { MapsUgcOutlined } from "@mui/icons-material";
 
-const Post = ({ post, currentUser }) => {
-  const [showComments, setShowComments] = useState(false);
+interface User {
+  id: string | number;
+  name?: string;
+  username?: string;
+  avatar?: string;
+}
+
+interface LikeData {
+  id: number;
+  userId: string | number;
+  username?: string;
+  timestamp: string;
+}
+
+interface Post {
+  id: string | number;
+  content: string;
+  image?: string;
+  timestamp: string | Date;
+  username?: string;
+  userAvatar?: string;
+  user?: User;
+  likes?: LikeData[];
+  commentCount?: number;
+  shares?: number;
+}
+
+interface PostProps {
+  post: Post;
+  currentUser: User | null;
+}
+
+const Post: React.FC<PostProps> = ({ post, currentUser }) => {
+  const [showComments, setShowComments] = useState<boolean>(false);
   
-  const toggleComments = () => {
+  const toggleComments = (): void => {
     setShowComments(!showComments);
   };
   
@@ -19,10 +51,10 @@ const Post = ({ post, currentUser }) => {
           <img 
             className="post-avatar" 
             src={post.userAvatar || "/default-avatar.png"} 
-            alt={post.username} 
+            alt={post.username || 'User'} 
           />
           <div className="post-user-info">
-            <h3 className="post-username">{post.username}</h3>
+            <h3 className="post-username">{post.username || 'Anonymous'}</h3>
             <span className="post-time">{new Date(post.timestamp).toLocaleString()}</span>
           </div>
         </div>
@@ -46,7 +78,7 @@ const Post = ({ post, currentUser }) => {
       
       {/* <div className="post-stats">
         <span className="post-likes">
-          {post.likes.length > 0 && (
+          {post.likes && post.likes.length > 0 && (
             <>
               <i className="fas fa-heart"></i> {post.likes.length}
             </>
@@ -65,7 +97,7 @@ const Post = ({ post, currentUser }) => {
       <div className="post-actions">
         <Like 
           postId={post.id} 
-          initialLikes={post.likes} 
+          initialLikes={post.likes || []} 
           currentUser={currentUser}
           postOwner={post.user} 
         />
@@ -85,4 +117,4 @@ const Post = ({ post, currentUser }) => {
   );
 };
 
-export default Post;
+export default Post; 

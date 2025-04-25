@@ -4,14 +4,33 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import "../css/Like.css";
 
-const Like = ({ postId, initialLikes = [], currentUser, postOwner }) => {
-  const [likes, setLikes] = useState(initialLikes);
-  const [isLiked, setIsLiked] = useState(
+interface User {
+  id: string | number;
+  name?: string;
+}
+
+interface Like {
+  id: number;
+  userId: string | number;
+  username?: string;
+  timestamp: string;
+}
+
+interface LikeProps {
+  postId: string | number;
+  initialLikes?: Like[];
+  currentUser: User | null;
+  postOwner?: User;
+}
+
+const Like: React.FC<LikeProps> = ({ postId, initialLikes = [], currentUser, postOwner }) => {
+  const [likes, setLikes] = useState<Like[]>(initialLikes);
+  const [isLiked, setIsLiked] = useState<boolean>(
     initialLikes.some(like => like.userId === currentUser?.id)
   );
   const { addNotification } = useNotifications();
 
-  const handleLike = () => {
+  const handleLike = (): void => {
     if (!currentUser) return;
 
     if (isLiked) {
@@ -21,7 +40,7 @@ const Like = ({ postId, initialLikes = [], currentUser, postOwner }) => {
       );
     } else {
       // Add like
-      const newLike = {
+      const newLike: Like = {
         id: Date.now(),
         userId: currentUser.id,
         username: currentUser.name,
@@ -33,12 +52,9 @@ const Like = ({ postId, initialLikes = [], currentUser, postOwner }) => {
       // Create notification for the like with post owner's name
       addNotification({
         id: Date.now(),
-        type: 'like',
-        postId,
-        userId: currentUser.id,
-        username: currentUser.name,
-        timestamp: new Date().toISOString(),
-        content: `You liked ${postOwner ? postOwner.name + "'s" : "a"} post`,
+        type: 'info',
+        message: `You liked ${postOwner ? postOwner.name + "'s" : "a"} post`,
+        timestamp: new Date(),
         read: false 
       });
     }
@@ -65,4 +81,4 @@ const Like = ({ postId, initialLikes = [], currentUser, postOwner }) => {
   );
 };
 
-export default Like;
+export default Like; 

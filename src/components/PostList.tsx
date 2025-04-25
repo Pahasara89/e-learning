@@ -2,21 +2,51 @@ import React, { useState, useEffect } from "react";
 import Post from "./Post";
 import "../css/PostList.css";
 
-const PostList = ({ currentUser }) => {
-  // In a real app, this would come from an API
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
+interface User {
+  id: string | number;
+  name?: string;
+  username?: string;
+  avatar?: string;
+}
+
+interface LikeData {
+  id: number;
+  userId: string | number;
+  username?: string;
+  timestamp: string;
+}
+
+interface PostData {
+  id: number;
+  userId: string | number;
+  username: string;
+  userAvatar: string;
+  content: string;
+  image?: string;
+  timestamp: string;
+  likes: LikeData[];
+  commentCount: number;
+  shares: number;
+}
+
+interface PostListProps {
+  currentUser: User | null;
+}
+
+const PostList: React.FC<PostListProps> = ({ currentUser }) => {
+  const [posts, setPosts] = useState<PostData[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     // Simulate loading posts from an API
-    const fetchPosts = async () => {
+    const fetchPosts = async (): Promise<void> => {
       setLoading(true);
       
       // Simulated delay to mimic API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       // Mock data
-      const mockPosts = [
+      const mockPosts: PostData[] = [
         {
           id: 1,
           userId: "user1",
@@ -26,8 +56,8 @@ const PostList = ({ currentUser }) => {
           image: "https://source.unsplash.com/random/600x400/?coding",
           timestamp: new Date(Date.now() - 3600000).toISOString(),
           likes: [
-            { userId: "user2", username: "John Doe", timestamp: new Date(Date.now() - 1800000).toISOString() },
-            { userId: "user3", username: "Sarah Wilson", timestamp: new Date(Date.now() - 900000).toISOString() }
+            { id: 1, userId: "user2", username: "John Doe", timestamp: new Date(Date.now() - 1800000).toISOString() },
+            { id: 2, userId: "user3", username: "Sarah Wilson", timestamp: new Date(Date.now() - 900000).toISOString() }
           ],
           commentCount: 5,
           shares: 2
@@ -52,7 +82,7 @@ const PostList = ({ currentUser }) => {
           image: "https://source.unsplash.com/random/600x400/?certificate",
           timestamp: new Date(Date.now() - 10800000).toISOString(),
           likes: [
-            { userId: "user1", username: "Jane Smith", timestamp: new Date(Date.now() - 5400000).toISOString() }
+            { id: 3, userId: "user1", username: "Jane Smith", timestamp: new Date(Date.now() - 5400000).toISOString() }
           ],
           commentCount: 8,
           shares: 5
@@ -84,4 +114,4 @@ const PostList = ({ currentUser }) => {
   );
 };
 
-export default PostList;
+export default PostList; 

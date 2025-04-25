@@ -1,10 +1,25 @@
 import React from "react";
 import "../css/NotificationItem.css";
 
-const NotificationItem = ({ notification, onMarkAsRead, onRemove }) => {
-  const { id, type, username, content, timestamp, read } = notification;
+interface Notification {
+  id: number;
+  type: 'like' | 'comment' | 'share' | 'default' | 'info';
+  username?: string;
+  message: string;
+  timestamp: string | Date;
+  read: boolean;
+}
+
+interface NotificationItemProps {
+  notification: Notification;
+  onMarkAsRead: (id: number) => void;
+  onRemove: (id: number) => void;
+}
+
+const NotificationItem: React.FC<NotificationItemProps> = ({ notification, onMarkAsRead, onRemove }) => {
+  const { id, type, username, message, timestamp, read } = notification;
   
-  const getNotificationIcon = () => {
+  const getNotificationIcon = (): string => {
     switch (type) {
       case 'like':
         return 'fas fa-heart notification-icon-like';
@@ -26,7 +41,7 @@ const NotificationItem = ({ notification, onMarkAsRead, onRemove }) => {
       </div>
       
       <div className="notification-content">
-        <div className="notification-text">{content}</div>
+        <div className="notification-text">{message}</div>
         <div className="notification-time">{formattedTime}</div>
       </div>
       
@@ -53,4 +68,4 @@ const NotificationItem = ({ notification, onMarkAsRead, onRemove }) => {
   );
 };
 
-export default NotificationItem;
+export default NotificationItem; 

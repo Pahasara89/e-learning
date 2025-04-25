@@ -5,17 +5,39 @@ import CommentForm from "./CommentForm";
 import "../css/CommentList.css";
 import { useNotifications } from "../context/NotificationContext";
 
-const CommentList = ({ postId, currentUser }) => {
-  const [comments, setComments] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+interface User {
+  id: string | number;
+  name?: string;
+  avatar?: string;
+}
+
+interface CommentData {
+  _id: string | number;
+  id: string;
+  content: string;
+  postId: string | number;
+  userId: string | number;
+  timestamp: string | Date;
+  username?: string;
+  userAvatar?: string;
+}
+
+interface CommentListProps {
+  postId: string | number;
+  currentUser: User | null;
+}
+
+const CommentList: React.FC<CommentListProps> = ({ postId, currentUser }) => {
+  const [comments, setComments] = useState<CommentData[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const { addNotification } = useNotifications();
 
   useEffect(() => {
     fetchComments();
   }, [postId]);
 
-  const fetchComments = async () => {
+  const fetchComments = async (): Promise<void> => {
     try {
       setLoading(true);
       const data = await commentService.getComments(postId);
@@ -36,18 +58,21 @@ const CommentList = ({ postId, currentUser }) => {
         
         if (comment.id && typeof comment.id === 'object') {
           // If id is an object with timestamp property
-          if (comment.id.timestamp) {
-            commentId = comment.id.timestamp.toString();
-            commentTimestamp = new Date(comment.id.date).toISOString();
+          const idObj = comment.id as { timestamp?: number; date?: string };
+          if (idObj.timestamp) {
+            commentId = idObj.timestamp.toString();
+            commentTimestamp = new Date(idObj.date || '').toISOString();
           } else {
             // If id is an object but doesn't have timestamp
-            commentId = comment.id.toString();
+            commentId = String(comment.id);
             commentTimestamp = new Date().toISOString(); // Use current date as fallback
           }
         } else {
           // If id is a string or number
           commentId = comment.id ? comment.id.toString() : '';
-          commentTimestamp = comment.timestamp || new Date().toISOString();
+          commentTimestamp = typeof comment.timestamp === 'string' 
+            ? comment.timestamp 
+            : new Date(comment.timestamp).toISOString();
         }
         
         return {
@@ -57,8 +82,8 @@ const CommentList = ({ postId, currentUser }) => {
           postId: comment.postId,
           userId: comment.userId,
           timestamp: commentTimestamp,
-          username: currentUser.name,
-          userAvatar: currentUser.avatar
+          username: currentUser?.name,
+          userAvatar: currentUser?.avatar
         };
       });
 
@@ -67,18 +92,21 @@ const CommentList = ({ postId, currentUser }) => {
       setError(null);
     } catch (err) {
       console.error("Error details:", err);
-      setError(err.message || "Failed to load comments. Please try again later.");
+      setError(err instanceof Error ? err.message : "Failed to load comments. Please try again later.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAddComment = async (text) => {
+  const handleAddComment = async (text: string): Promise<boolean> => {
     try {
+      if (!currentUser) return false;
+      
       const newComment = {
         content: text,
         postId: postId,
-        userId: currentUser.id
+        userId: currentUser.id,
+        timestamp: new Date().toISOString()
       };
 
       const savedComment = await commentService.addComment(newComment);
@@ -91,30 +119,33 @@ const CommentList = ({ postId, currentUser }) => {
       
       if (savedComment.id && typeof savedComment.id === 'object') {
         // If id is an object with timestamp property
-        if (savedComment.id.timestamp) {
-          commentId = savedComment.id.timestamp.toString();
-          commentTimestamp = new Date(savedComment.id.date).toISOString();
+        const idObj = savedComment.id as { timestamp?: number; date?: string };
+        if (idObj.timestamp) {
+          commentId = idObj.timestamp.toString();
+          commentTimestamp = new Date(idObj.date || '').toISOString();
         } else {
           // If id is an object but doesn't have timestamp
-          commentId = savedComment.id.toString();
+          commentId = String(savedComment.id);
           commentTimestamp = new Date().toISOString(); // Use current date as fallback
         }
       } else {
         // If id is a string or number
         commentId = savedComment.id ? savedComment.id.toString() : '';
-        commentTimestamp = savedComment.timestamp || new Date().toISOString();
+        commentTimestamp = typeof savedComment.timestamp === 'string' 
+          ? savedComment.timestamp 
+          : new Date(savedComment.timestamp).toISOString();
       }
       
       // Transform the saved comment to match our frontend format
-      const transformedComment = {
+      const transformedComment: CommentData = {
         _id: savedComment.id || savedComment._id, // Use either id or _id
         id: commentId,
         content: savedComment.content,
         postId: savedComment.postId,
         userId: savedComment.userId,
         timestamp: commentTimestamp,
-        username: currentUser.name,
-        userAvatar: currentUser.avatar
+        username: currentUser?.name,
+        userAvatar: currentUser?.avatar
       };
       
       setComments(prevComments => [transformedComment, ...prevComments]);
@@ -123,11 +154,8 @@ const CommentList = ({ postId, currentUser }) => {
       addNotification({
         id: Date.now(),
         type: 'comment',
-        postId,
-        userId: currentUser.id,
-        username: currentUser.name,
-        timestamp: new Date().toISOString(),
-        content: `You commented on a post: "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"`,
+        message: `You commented on a post: "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"`,
+        timestamp: new Date(),
         read: false
       });
       
@@ -138,17 +166,31 @@ const CommentList = ({ postId, currentUser }) => {
     }
   };
 
-  const handleUpdateComment = (updatedComment) => {
+  const handleUpdateComment = (updatedComment: { 
+    _id: string | number; 
+    content: string; 
+    userId: string | number; 
+    postId: string | number; 
+    username?: string; 
+    userAvatar?: string; 
+    timestamp: string | Date; 
+  }): void => {
     setComments(prevComments =>
       prevComments.map(comment =>
-        comment.id === updatedComment.id ? updatedComment : comment
+        comment._id === updatedComment._id ? {
+          ...comment,
+          content: updatedComment.content,
+          timestamp: typeof updatedComment.timestamp === 'string' 
+            ? updatedComment.timestamp 
+            : updatedComment.timestamp.toISOString()
+        } : comment
       )
     );
   };
 
-  const handleDeleteComment = (commentId) => {
+  const handleDeleteComment = (commentId: string | number): void => {
     setComments(prevComments => 
-      prevComments.filter(comment => comment.id !== commentId)
+      prevComments.filter(comment => comment._id !== commentId)
     );
   };
 
@@ -180,4 +222,4 @@ const CommentList = ({ postId, currentUser }) => {
   );
 };
 
-export default CommentList;
+export default CommentList; 

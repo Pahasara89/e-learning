@@ -4,7 +4,20 @@ import { useNotifications } from "../context/NotificationContext";
 import "../css/NotificationPanel.css";
 import { NotificationsNoneOutlined } from "@mui/icons-material";
 
-const NotificationPanel = ({ isOpen, onClose }) => {
+// Type adapter to convert between Notification interfaces
+const adaptNotification = (notification: any) => {
+  return {
+    ...notification,
+    content: notification.message || notification.content || ''
+  };
+};
+
+interface NotificationPanelProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const NotificationPanel: React.FC<NotificationPanelProps> = ({ isOpen, onClose }) => {
   const { 
     notifications, 
     markAsRead, 
@@ -43,7 +56,7 @@ const NotificationPanel = ({ isOpen, onClose }) => {
           notifications.map(notification => (
             <NotificationItem
               key={notification.id}
-              notification={notification}
+              notification={adaptNotification(notification)}
               onMarkAsRead={markAsRead}
               onRemove={clearNotification}
             />
@@ -60,4 +73,4 @@ const NotificationPanel = ({ isOpen, onClose }) => {
   );
 };
 
-export default NotificationPanel;
+export default NotificationPanel; 
